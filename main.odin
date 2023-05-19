@@ -37,10 +37,7 @@ main :: proc() {
 
         fd, err := os.open(now_string, os.O_RDONLY, 0)
         if !(err == 0) {
-            // fmt.println("ERROR ")
-            // fmt.print(now_string)
-
-            // return
+            // fmt.println("ERROR ")       // fmt.print(now_string)           // return
             do_readit = false
         }
         defer os.close(fd)
