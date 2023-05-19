@@ -6,6 +6,7 @@ import n "core:math/linalg/hlsl"
 import rl "vendor:raylib"
 import rand "core:math/rand"
 import "core:strings"
+import os "core:os"
 
 
 main :: proc() {
@@ -22,6 +23,17 @@ main :: proc() {
     keyfor = rl.GetKeyPressed()
 
     is_running :: true
+
+    something := os.get_env("PATH")
+
+    for i in strings.split_after(something, ":", context.temp_allocator) {
+
+
+
+        os.read_dir()
+        fmt.println ( i )
+    }
+
 
     // fmt.println(keyfor)
 
