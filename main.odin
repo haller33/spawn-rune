@@ -8,6 +8,7 @@ import rand "core:math/rand"
 import "core:strings"
 import os "core:os"
 
+BUFFER_SIZE_OF_EACH_PATH :: 1024
 
 main :: proc() {
 
@@ -24,14 +25,40 @@ main :: proc() {
 
     is_running :: true
 
-    something := os.get_env("PATH")
+    something := os.get_env("PATH", context.temp_allocator)
 
-    for i in strings.split_after(something, ":", context.temp_allocator) {
+    now_string := ""
 
+    do_readit := true
 
+    for name in strings.split_after(something, ":", context.temp_allocator) {
 
-        os.read_dir()
-        fmt.println ( i )
+        now_string = strings.trim_right(name, ":")
+
+        fd, err := os.open(now_string, os.O_RDONLY, 0)
+        if !(err == 0) {
+            // fmt.println("ERROR ")
+            // fmt.print(now_string)
+
+            // return
+            do_readit = false
+        }
+        defer os.close(fd)
+
+        if do_readit {
+            fileinfo, ok := os.read_dir(
+                fd,
+                BUFFER_SIZE_OF_EACH_PATH,
+                context.temp_allocator,
+            )
+            fmt.println(fileinfo)
+            fmt.println(ok)
+        } else {
+            do_readit = true
+        }
+
+        // fmt.println ( i )
+
     }
 
 
@@ -62,7 +89,7 @@ main :: proc() {
             color_now = rl.BLUE
         }
 
-        rl.DrawRectangle(0,0,30, 30, color_now)
+        rl.DrawRectangle(0, 0, 30, 30, color_now)
 
         rl.ClearBackground(rl.WHITE)
 
