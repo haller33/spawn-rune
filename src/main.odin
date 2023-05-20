@@ -157,11 +157,15 @@ main_source :: proc() {
     }
   }
 
+  filter_sort :: proc() {
+
+  }
+
   filter_enviropment :: proc(
     search_for: string,
     keys_global: []string,
     hashmap: ^map[string]string,
-  ) {
+  ) -> string {
 
     filtered := m_filter(
       keys_global,
@@ -179,9 +183,11 @@ main_source :: proc() {
 
       joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
       fmt.println(joined)
+      return joined
     } else {
 
       fmt.println("not found")
+      return ""
     }
   }
 
@@ -201,6 +207,8 @@ main_source :: proc() {
     pause: bool = false
 
     fmt.println("counter :: ", counter)
+
+    runner_simbol: string = ""
 
     word: string = ""
 
@@ -226,7 +234,9 @@ main_source :: proc() {
       if keyfor == rl.KeyboardKey.ENTER {
         color_now = rl.BLUE
 
-        os.execvp("/usr/bin/thunar", []string{})
+        if runner_simbol != "" {
+          os.execvp(runner_simbol, []string{})
+        }
       } else if (keyfor >= rl.KeyboardKey.A) && (keyfor <= rl.KeyboardKey.Z) {
 
         rune_one_caracter = cast(rune)(keyfor)
@@ -241,7 +251,7 @@ main_source :: proc() {
 
         if DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
 
       } else if keyfor == rl.KeyboardKey.BACKSPACE {
 
@@ -254,7 +264,7 @@ main_source :: proc() {
 
         if DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
       } else if keyfor == rl.KeyboardKey.SPACE {
 
         swap_str_arr = []string{word, " "}
@@ -263,7 +273,7 @@ main_source :: proc() {
 
         if DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
       }
 
 
