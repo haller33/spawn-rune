@@ -6,6 +6,7 @@ import n "core:math/linalg/hlsl"
 import rl "vendor:raylib"
 import rand "core:math/rand"
 import "core:strings"
+import "core:slice"
 import os "core:os"
 import c "core:c"
 import mem "core:mem"
@@ -38,10 +39,7 @@ main_source :: proc() {
   hashmap_paths := make(map[string]string)
   defer delete(hashmap_paths)
 
-  something := os.get_env("PATH", context.temp_allocator)
-
-  // fmt.println(something)
-
+  enviropment_vars := os.get_env("PATH", context.temp_allocator)
 
   now_string := ""
   name_binary := ""
@@ -59,7 +57,11 @@ main_source :: proc() {
 
   total: i32 = 0
 
-  for name in strings.split_after(something, ":", context.temp_allocator) {
+  for name in strings.split_after(
+    "/home/synbian/rbin", // enviropment_vars,
+    ":",
+    context.temp_allocator,
+  ) {
 
     files_arr_ret: ^^c.char
 
@@ -122,6 +124,36 @@ main_source :: proc() {
     fmt.println(k)
 
   } */
+  {
+
+    keys, err := slice.map_keys(hashmap_paths, context.temp_allocator)
+
+    global_search: string = "ema"
+
+    filter_up :: proc(key_hash: string) -> bool {
+      if strings.has_prefix(key_hash, "gf") {
+        return true
+      } else {
+        return false
+      }
+    }
+
+    filtered := slice.filter(keys, filter_up, context.temp_allocator)
+
+    // fmt.println(filtered)
+
+    if len(filtered) > 0 {
+      thing := slice.first(filtered)
+
+      jj := []string{hashmap_paths[thing], thing}
+
+      joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
+      fmt.println(joined)
+    } else {
+
+      fmt.println("not found")
+    }
+  }
 
   // os.execvp("/usr/bin/caja &", params)
 
