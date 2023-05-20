@@ -15,13 +15,13 @@ import "core:unicode/utf8"
 import "core:unicode"
 import readdir "../lib/readdir_files"
 
+BUFFER_SIZE_OF_EACH_PATH :: 1024
+
 SHOW_LEAK :: true
 TEST_MODE :: false
 INTERFACE_RAYLIB :: true
-BUFFER_SIZE_OF_EACH_PATH :: 1024
 DEBUG_PATH :: false
 DEBUG_INTERFACE_WORD :: false
-DEBUG_ERRORN :: false
 DEBUG_READ_ERRORN :: false
 COUNT_TOTAL_PROGRAMS_PATH :: false
 TEST_STATEMENT :: false
@@ -32,7 +32,6 @@ main_source :: proc() {
   windown_dim :: n.int2{400, 100}
 
   when INTERFACE_RAYLIB {
-
 
     rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
     rl.SetTargetFPS(60)
@@ -138,16 +137,10 @@ main_source :: proc() {
     }
   }
 
-  if COUNT_TOTAL_PROGRAMS_PATH {
+  when COUNT_TOTAL_PROGRAMS_PATH {
     fmt.println("total :: ", total)
   }
 
-  /*
-  for i, k in hashmap_paths {
-    fmt.println(i)
-    fmt.println(k)
-
-  } */
 
   keys_global, err := slice.map_keys(hashmap_paths, context.temp_allocator)
 
@@ -306,7 +299,7 @@ when !TEST_MODE {
     fd, err := os.open("/bin", os.O_RDONLY, 0)
     files_info, ok := os.read_dir(fd, BUFFER_SIZE_OF_EACH_PATH)
     if ok == 0 {
-      if DEBUG_READ_ERRORN {
+      when DEBUG_READ_ERRORN {
         fmt.println("ERROR READ ::: |", now_string, "|")
       }
     }
@@ -325,7 +318,7 @@ when !TEST_MODE {
 
         counter += 1
 
-        if DEBUG_PATH {
+        when DEBUG_PATH {
           name_binary = strings.trim_left(name_binary, "/")
           fmt.print(name_binary)
           fmt.print(" - ")
