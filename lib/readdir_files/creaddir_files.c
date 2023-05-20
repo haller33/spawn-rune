@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <dirent.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -7,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <errno.h>
 
 //
 // this preserve program to be just a library
@@ -17,19 +17,18 @@
 #define MAX_CARACTER_OF_FILE 180
 #define MAX_BYTES_FILE_NAME sizeof(char) * MAX_CARACTER_OF_FILE
 
-
-int debug_read_dir_files (char** files_arr_ret, int32_t size_files) {
+int debug_read_dir_files(char **files_arr_ret, int32_t size_files) {
 
   int32_t i;
 
   for (i = 0; i < size_files; i++) {
-    printf("%s\n",files_arr_ret[i]);
+    printf("%s\n", files_arr_ret[i]);
   }
 
   return 0;
 }
 
-int free_read_dir (char** files_arr_ret, int32_t size_files) {
+int free_read_dir(char **files_arr_ret, int32_t size_files) {
 
   int32_t i;
 
@@ -70,7 +69,8 @@ int count_files_dir(char *name_dir) {
   return files_count; // remove from the count the . .. directories
 }
 
-int creaddir_files(char *name_dir, char ***files_arr_ret, int32_t *size_of_dir_t) {
+int creaddir_files(char *name_dir, char ***files_arr_ret,
+                   int32_t *size_of_dir_t) {
 
   DIR *folder;
   struct dirent *entry;
@@ -89,7 +89,6 @@ int creaddir_files(char *name_dir, char ***files_arr_ret, int32_t *size_of_dir_t
     return -2;
 
   assert(files_count > -1);
-
 
   // not include . .. folders on list, that a ready have count on
   // count_files_dir()
@@ -175,17 +174,16 @@ int main() {
 
   // printf("# %d\n", size_files);
 
-  #if false
+#if false
   for (i = 0; i < size_files; i++) {
     free(files_arr[i]);
   }
 
   free(files_arr);
-  #endif
+#endif
 
-  free_read_dir ( files_arr, size_files );
+  free_read_dir(files_arr, size_files);
 
   return 0;
-
 }
 #endif // HAVE_MAIN

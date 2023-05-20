@@ -10,6 +10,7 @@ import os "core:os"
 import c "core:c"
 import readdir "../lib/readdir_files"
 
+INTERFACE_RAYLIB :: false
 BUFFER_SIZE_OF_EACH_PATH :: 1024
 DEBUG_PATH :: false
 DEBUG_ERRORN :: false
@@ -17,14 +18,18 @@ DEBUG_READ_ERRORN :: false
 
 main :: proc() {
 
-  // rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
-  // rl.SetTargetFPS(60)
+  if INTERFACE_RAYLIB {
+
+    rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
+    rl.SetTargetFPS(60)
+
+
+    windown_dim :: n.int2{400, 100}
+
+  }
 
   keyfor: rl.KeyboardKey
   keyfor = rl.GetKeyPressed()
-
-
-  windown_dim :: n.int2{400, 100}
 
   // fmt.println ("Hello World")
 
@@ -33,7 +38,7 @@ main :: proc() {
 
   something := os.get_env("PATH", context.temp_allocator)
 
-  fmt.println(something)
+  // fmt.println(something)
 
 
   now_string := ""
@@ -49,8 +54,12 @@ main :: proc() {
 
   total: i32 = 0
 
-  for name in strings.split_after(something, ":") {
-    // for name in strings.split_after("/usr/bin:", ":", context.temp_allocator) {   // problem reading /bin directory
+  // for name in strings.split_after(something, ":") {
+  for name in strings.split_after(
+    "/home/synbian/rbin",
+    ":",
+    context.temp_allocator,
+  ) {   // problem reading /bin directory
 
     files_arr_ret: ^^c.char
 
@@ -61,13 +70,25 @@ main :: proc() {
 
       fmt.println(" :: ", now_string)
 
-      cstr_name = cast(^c.char)strings.clone_to_cstring(now_string)
+      cstr_name =
+      cast(^c.char)strings.clone_to_cstring(now_string, context.temp_allocator)
 
       readdir.creaddir_files(cstr_name, &files_arr_ret, &count_files)
 
       fmt.println(" : ", count_files, " - ", files_arr_ret)
 
-      readdir.debug_read_dir_files(files_arr_ret, count_files)
+      // readdir.debug_read_dir_files(files_arr_ret, count_files)
+
+
+      strings_now: ^^c.char = (cast(^^c.char)files_arr_ret)
+
+      for i: i32 = 0; i < count_files; i += 1 {
+          fmt.println ("String :: ",&(auto_cast strings_now)[0])
+          strings_now+=1
+      }
+
+      // strings.clone_from_cstring(strings_now, context.temp_allocator)
+
 
       { /*
       for i: i32 = 0; i < count_files; i += 1 {
@@ -90,7 +111,7 @@ main :: proc() {
 
   // os.execvp("/usr/bin/caja &", params)
 
-  if false {
+  if INTERFACE_RAYLIB {
     is_running :: true
 
     // fmt.println(keyfor)
