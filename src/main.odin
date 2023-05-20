@@ -1,4 +1,4 @@
-package pong_odin
+package spawn_rune
 
 import fmt "core:fmt"
 import la "core:math/linalg"
@@ -7,11 +7,66 @@ import rl "vendor:raylib"
 import rand "core:math/rand"
 import "core:strings"
 import os "core:os"
+import "core:c"
+import readdir "../lib/readdir_files"
 
 BUFFER_SIZE_OF_EACH_PATH :: 1024
 DEBUG_PATH :: false
+DEBUG_ERRORN :: false
+DEBUG_READ_ERRORN :: false
 
-main :: proc() {
+main :: proc () {
+
+    fmt.println ("hello world")
+}
+
+main_test :: proc () {
+
+    counter := 0
+
+    name_binary, now_string : string = "", ""
+
+    fd, err := os.open("/bin", os.O_RDONLY, 0)
+    files_info, ok := os.read_dir(
+        fd,
+        BUFFER_SIZE_OF_EACH_PATH,
+        context.temp_allocator
+    )
+    if ok == 0 {
+        if DEBUG_READ_ERRORN {
+            fmt.println ("ERROR READ ::: |", now_string, "|")
+        }
+    }
+
+    if len(files_info) != 0 {
+
+        for binary in files_info {
+
+            // fmt.print (now_string," - ")
+            name_binary = strings.cut(
+                binary.fullpath,
+                strings.last_index(binary.fullpath, "/"),
+                0,
+                context.temp_allocator,
+            )
+
+            counter += 1
+
+            if DEBUG_PATH {
+                name_binary = strings.trim_left(name_binary, "/")
+                fmt.print(name_binary)
+                fmt.print(" - ")
+                fmt.println(binary.fullpath)
+            }
+
+        }
+    }
+
+    fmt.println (counter)
+
+}
+
+main_proc :: proc() {
 
 
     rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
@@ -37,15 +92,18 @@ main :: proc() {
 
     counter := 0
 
-    // for name in strings.split_after(something, ":", context.temp_allocator) {
-    for name in strings.split_after("/bin", ":", context.temp_allocator) { // problem reading /bin directory
+    for name in strings.split_after(something, ":", context.temp_allocator) {
+    // for name in strings.split_after("/bin:", ":", context.temp_allocator) { // problem reading /bin directory
 
-        fmt.println ("current name ", name)
         now_string = strings.trim_right(name, ":")
+        fmt.println (" :: ", now_string)
 
         fd, err := os.open(now_string, os.O_RDONLY, 0)
         if !(err == 0) {
-            // fmt.println("ERROR ") // fmt.print(now_string)  // return
+
+            if DEBUG_ERRORN {
+                fmt.println("ERROR OPEN |", now_string, "|") // fmt.print(now_string)  // return
+            }
             do_readit = false
         }
         defer os.close(fd)
@@ -56,6 +114,11 @@ main :: proc() {
                 BUFFER_SIZE_OF_EACH_PATH,
                 context.temp_allocator,
             )
+            if ok == 0 {
+                if DEBUG_READ_ERRORN {
+                    fmt.println ("ERROR READ ::: |", now_string, "|")
+                }
+            }
 
             if len(files_info) != 0 {
 
@@ -81,8 +144,9 @@ main :: proc() {
                 }
             }
         } else {
-            fmt.print (" ERRR : ",now_string, " :: ")
-            fmt.println(err)
+            if DEBUG_ERRORN {
+                fmt.println ("Do not Read |", now_string, "|")
+            }
             do_readit = true
         }
 
