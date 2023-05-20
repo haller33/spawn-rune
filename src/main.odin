@@ -15,6 +15,8 @@ import "core:unicode/utf8"
 import "core:unicode"
 import readdir "../lib/readdir_files"
 
+SHOW_LEAK :: true
+TEST_MODE :: false
 INTERFACE_RAYLIB :: true
 BUFFER_SIZE_OF_EACH_PATH :: 1024
 DEBUG_PATH :: false
@@ -26,12 +28,15 @@ TEST_STATEMENT :: false
 
 main_source :: proc() {
 
+
+  windown_dim :: n.int2{400, 100}
+
   if INTERFACE_RAYLIB {
+
 
     rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
     rl.SetTargetFPS(60)
 
-    windown_dim :: n.int2{400, 100}
 
   }
 
@@ -212,6 +217,7 @@ main_source :: proc() {
 
     word: string = ""
 
+    temp_word: cstring
     rune_one_caracter: rune
     runes_swaps: []rune
     swap_str_arr: []string
@@ -219,7 +225,7 @@ main_source :: proc() {
 
     for is_running && rl.WindowShouldClose() == false {
 
-      rl.DrawText("Hello World!", 10, 10, 20, rl.DARKGRAY)
+      // rl.DrawText("Hello World!", 10, 10, 20, rl.DARKGRAY)
       /*scores: cstring = strings.clone_to_cstring(
             fmt.tprintf("hello world",  context.temp_allocator,
         )*/
@@ -243,7 +249,7 @@ main_source :: proc() {
         rune_one_caracter = unicode.to_lower(rune_one_caracter)
         runes_swaps = []rune{rune_one_caracter}
 
-        str_temp = utf8.runes_to_string(runes_swaps)
+        str_temp = utf8.runes_to_string(runes_swaps, context.temp_allocator)
 
         swap_str_arr = []string{word, str_temp}
 
@@ -276,8 +282,15 @@ main_source :: proc() {
         runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
       }
 
+      temp_word = strings.unsafe_string_to_cstring(word)
 
-      rl.DrawRectangle(0, 0, 30, 30, color_now)
+      rl.DrawText(
+        temp_word,
+        (windown_dim.x / 2) - 20,
+        (windown_dim.y / 2) - 20,
+        20,
+        rl.DARKGRAY,
+      )
 
       rl.ClearBackground(rl.WHITE)
 
@@ -330,9 +343,39 @@ main_test_fail :: proc() {
 
 }
 
-main :: proc() {
+
+main_scheduler :: proc() {
 
   // main_proc() // still not working propely
 
   main_source()
+}
+
+main :: proc() {
+
+  when SHOW_LEAK {
+    track: mem.Tracking_Allocator
+    mem.tracking_allocator_init(&track, context.allocator)
+    context.allocator = mem.tracking_allocator(&track)
+  }
+
+  when !TEST_MODE {
+    main_scheduler()
+  } else {
+    testing()
+  }
+
+  when SHOW_LEAK {
+    for _, leak in track.allocation_map {
+      fmt.printf("%v leaked %v bytes\n", leak.location, leak.size)
+    }
+    for bad_free in track.bad_free_array {
+      fmt.printf(
+        "%v allocation %p was freed badly\n",
+        bad_free.location,
+        bad_free.memory,
+      )
+    }
+  }
+  return
 }
