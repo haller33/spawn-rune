@@ -11,14 +11,18 @@ import os "core:os"
 import c "core:c"
 import mem "core:mem"
 import "core:runtime"
+import "core:unicode/utf8"
+import "core:unicode"
 import readdir "../lib/readdir_files"
 
 INTERFACE_RAYLIB :: true
 BUFFER_SIZE_OF_EACH_PATH :: 1024
 DEBUG_PATH :: false
+DEBUG_INTERFACE_WORD :: false
 DEBUG_ERRORN :: false
 DEBUG_READ_ERRORN :: false
 COUNT_TOTAL_PROGRAMS_PATH :: false
+TEST_STATEMENT :: false
 
 main_source :: proc() {
 
@@ -30,6 +34,23 @@ main_source :: proc() {
     windown_dim :: n.int2{400, 100}
 
   }
+
+
+  m_filter :: proc(
+    s: $S/[]$U,
+    f: proc(_: U, _: U) -> bool,
+    m_v: U,
+    allocator := context.allocator,
+  ) -> S {
+    r := make([dynamic]U, 0, 0, allocator)
+    for v in s {
+      if f(v, m_v) {
+        append(&r, v)
+      }
+    }
+    return r[:]
+  }
+
 
   keyfor: rl.KeyboardKey
   keyfor = rl.GetKeyPressed()
@@ -58,7 +79,7 @@ main_source :: proc() {
   total: i32 = 0
 
   for name in strings.split_after(
-    "/home/synbian/rbin", // enviropment_vars,
+    enviropment_vars, // "/home/synbian/rbin", //
     ":",
     context.temp_allocator,
   ) {
@@ -124,48 +145,37 @@ main_source :: proc() {
     fmt.println(k)
 
   } */
-  { // ok
 
-    m_filter :: proc(
-      s: $S/[]$U,
-      f: proc(_: U, _: U) -> bool,
-      m_v: U,
-      allocator := context.allocator,
-    ) -> S {
-      r := make([dynamic]U, 0, 0, allocator)
-      for v in s {
-        if f(v, m_v) {
-          append(&r, v)
-        }
-      }
-      return r[:]
+  keys_global, err := slice.map_keys(hashmap_paths, context.temp_allocator)
+
+
+  filter_up :: proc(key_hash: string, m_value_of_now: string) -> bool {
+    if strings.has_prefix(key_hash, m_value_of_now) {
+      return true
+    } else {
+      return false
     }
+  }
 
-    keys, err := slice.map_keys(hashmap_paths, context.temp_allocator)
-
-    global_search: string = "gf"
-
-    filter_up :: proc(key_hash: string, m_value_of_now: string) -> bool {
-      if strings.has_prefix(key_hash, m_value_of_now) {
-        return true
-      } else {
-        return false
-      }
-    }
+  filter_enviropment :: proc(
+    search_for: string,
+    keys_global: []string,
+    hashmap: ^map[string]string,
+  ) {
 
     filtered := m_filter(
-      keys,
+      keys_global,
       filter_up,
-      global_search,
+      search_for,
       context.temp_allocator,
     )
 
-    // fmt.println(filtered)
+    fmt.println(filtered)
 
     if len(filtered) > 0 {
       thing := slice.first(filtered)
 
-      jj := []string{hashmap_paths[thing], thing}
+      jj := []string{hashmap[thing], thing}
 
       joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
       fmt.println(joined)
@@ -174,6 +184,7 @@ main_source :: proc() {
       fmt.println("not found")
     }
   }
+
 
   // os.execvp("/usr/bin/caja &", params)
 
@@ -190,6 +201,13 @@ main_source :: proc() {
     pause: bool = false
 
     fmt.println("counter :: ", counter)
+
+    word: string = ""
+
+    rune_one_caracter: rune
+    runes_swaps: []rune
+    swap_str_arr: []string
+    str_temp: string
 
     for is_running && rl.WindowShouldClose() == false {
 
@@ -209,7 +227,45 @@ main_source :: proc() {
         color_now = rl.BLUE
 
         os.execvp("/usr/bin/thunar", []string{})
+      } else if (keyfor >= rl.KeyboardKey.A) && (keyfor <= rl.KeyboardKey.Z) {
+
+        rune_one_caracter = cast(rune)(keyfor)
+        rune_one_caracter = unicode.to_lower(rune_one_caracter)
+        runes_swaps = []rune{rune_one_caracter}
+
+        str_temp = utf8.runes_to_string(runes_swaps)
+
+        swap_str_arr = []string{word, str_temp}
+
+        word = strings.concatenate(swap_str_arr)
+
+        if DEBUG_INTERFACE_WORD {fmt.println(word)}
+
+        filter_enviropment(word, keys_global, &hashmap_paths)
+
+      } else if keyfor == rl.KeyboardKey.BACKSPACE {
+
+        if len(word) == 1 {
+          word = ""
+        } else {
+
+          word = strings.cut(word, 0, len(word) - 1, context.temp_allocator)
+        }
+
+        if DEBUG_INTERFACE_WORD {fmt.println(word)}
+
+        filter_enviropment(word, keys_global, &hashmap_paths)
+      } else if keyfor == rl.KeyboardKey.SPACE {
+
+        swap_str_arr = []string{word, " "}
+
+        word = strings.concatenate(swap_str_arr)
+
+        if DEBUG_INTERFACE_WORD {fmt.println(word)}
+
+        filter_enviropment(word, keys_global, &hashmap_paths)
       }
+
 
       rl.DrawRectangle(0, 0, 30, 30, color_now)
 
