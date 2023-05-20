@@ -33,7 +33,7 @@ main :: proc() {
 
   something := os.get_env("PATH", context.temp_allocator)
 
-  fmt.println ( something )
+  fmt.println(something)
 
 
   now_string := ""
@@ -50,38 +50,42 @@ main :: proc() {
   total: i32 = 0
 
   for name in strings.split_after(something, ":") {
-  // for name in strings.split_after("/usr/bin:", ":", context.temp_allocator) {   // problem reading /bin directory
+    // for name in strings.split_after("/usr/bin:", ":", context.temp_allocator) {   // problem reading /bin directory
 
     files_arr_ret: ^^c.char
 
     now_string = strings.trim(name, ":")
     now_string = strings.trim(now_string, " ")
-    fmt.println(" :: ", now_string)
 
-    cstr_name = cast(^c.char)strings.clone_to_cstring(now_string)
+    if os.is_dir_path(now_string) {
 
-    readdir.creaddir_files(cstr_name, &files_arr_ret, &count_files)
+      fmt.println(" :: ", now_string)
 
-    fmt.println(" : ", count_files, " - ", files_arr_ret)
+      cstr_name = cast(^c.char)strings.clone_to_cstring(now_string)
 
-    readdir.debug_read_dir_files(files_arr_ret, count_files)
+      readdir.creaddir_files(cstr_name, &files_arr_ret, &count_files)
 
-    { /*
+      fmt.println(" : ", count_files, " - ", files_arr_ret)
+
+      readdir.debug_read_dir_files(files_arr_ret, count_files)
+
+      { /*
       for i: i32 = 0; i < count_files; i += 1 {
         free(&files_arr_ret)
         files_arr_ret += 1
       } */
+      }
+
+      readdir.free_read_dir(files_arr_ret, count_files)
+
+      total += count_files
+
+      count_files = 0
     }
 
-    readdir.free_read_dir(files_arr_ret, count_files)
+    fmt.println("total :: ", total)
 
-    total += count_files
-
-    count_files = 0
   }
-
-  fmt.println("total :: ", total)
-
   // params := []string{"&"}
 
   // os.execvp("/usr/bin/caja &", params)
