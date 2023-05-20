@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HAVE_MAIN true
+// this preserve program to be just a library
+#define HAVE_MAIN false
 #define MAX_CARACTER_OF_FILE 180
 #define MAX_BYTES_FILE_NAME sizeof(char) * MAX_CARACTER_OF_FILE
 
@@ -32,7 +33,7 @@ int count_files_dir(char *name_dir) {
   return (files_count - 2); // remove from the count the . .. directories
 }
 
-int creaddir(char *name_dir, char ***files_arr_ret, int *size_of_dir_t) {
+int creaddir_files(char *name_dir, char ***files_arr_ret, int *size_of_dir_t) {
 
   DIR *folder;
   struct dirent *entry;
