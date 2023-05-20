@@ -6,7 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+//
 // this preserve program to be just a library
+// when used build_c_test.sh need this HAVE_MAIN to be true
+//
 #define HAVE_MAIN false
 #define MAX_CARACTER_OF_FILE 180
 #define MAX_BYTES_FILE_NAME sizeof(char) * MAX_CARACTER_OF_FILE
@@ -99,7 +102,7 @@ int main() {
 
   creaddir(directory, &files_arr, &size_files);
 
-#if true
+#if true // to test performance of readding and free memory on C
   for (i = 0; i < size_files; i++) {
 
     printf("file(%d) : %s\n", i, files_arr[i]);
