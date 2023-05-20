@@ -36,8 +36,6 @@ main_source :: proc() {
 
     rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
     rl.SetTargetFPS(60)
-
-
   }
 
 
@@ -101,7 +99,7 @@ main_source :: proc() {
 
       readdir.creaddir_files(cstr_name, &files_arr_ret, &count_files)
 
-      if DEBUG_PATH {
+      when DEBUG_PATH {
         fmt.println(" :: ", now_string)
         fmt.println(" : ", count_files, " - ", files_arr_ret)
       }
@@ -132,7 +130,7 @@ main_source :: proc() {
 
       readdir.free_read_dir(files_arr_ret, count_files)
 
-      if COUNT_TOTAL_PROGRAMS_PATH {
+      when COUNT_TOTAL_PROGRAMS_PATH {
         total += count_files
       }
 
@@ -233,12 +231,9 @@ main_source :: proc() {
       // rl.DrawText(string(windown_dim.x), 0, 0, 20, rl.DARKGRAY)
       // rl.DrawText(string(windown_dim.y), 0, 10, 20, rl.DARKGRAY)
 
-      color_now := rl.RED
-
       /// handle game play velocity
       keyfor = rl.GetKeyPressed()
       if keyfor == rl.KeyboardKey.ENTER {
-        color_now = rl.BLUE
 
         if runner_simbol != "" {
           os.execvp(runner_simbol, []string{})
@@ -255,7 +250,7 @@ main_source :: proc() {
 
         word = strings.concatenate(swap_str_arr, context.temp_allocator)
 
-        if DEBUG_INTERFACE_WORD {fmt.println(word)}
+        when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
         runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
 
@@ -268,7 +263,7 @@ main_source :: proc() {
           word = strings.cut(word, 0, len(word) - 1, context.temp_allocator)
         }
 
-        if DEBUG_INTERFACE_WORD {fmt.println(word)}
+        when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
         runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
       } else if keyfor == rl.KeyboardKey.SPACE {
@@ -277,12 +272,16 @@ main_source :: proc() {
 
         word = strings.concatenate(swap_str_arr, context.temp_allocator)
 
-        if DEBUG_INTERFACE_WORD {fmt.println(word)}
+        when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
         runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
       }
 
       temp_word = strings.unsafe_string_to_cstring(word)
+
+      rl.ClearBackground(rl.WHITE)
+
+      rl.DrawText("Spawn Rune", 100, 100, 20, rl.DARKGRAY)
 
       rl.DrawText(
         temp_word,
@@ -292,59 +291,58 @@ main_source :: proc() {
         rl.DARKGRAY,
       )
 
-      rl.ClearBackground(rl.WHITE)
-
-      rl.DrawText("Spawn Rune", 100, 100, 20, rl.DARKGRAY)
-
       rl.EndDrawing()
     }
   }
 }
 
-main_test_fail :: proc() {
+when !TEST_MODE {
+  main_test_fail :: proc() {
 
-  counter := 0
+    counter := 0
 
-  name_binary, now_string: string = "", ""
+    name_binary, now_string: string = "", ""
 
-  fd, err := os.open("/bin", os.O_RDONLY, 0)
-  files_info, ok := os.read_dir(fd, BUFFER_SIZE_OF_EACH_PATH)
-  if ok == 0 {
-    if DEBUG_READ_ERRORN {
-      fmt.println("ERROR READ ::: |", now_string, "|")
-    }
-  }
-
-  if len(files_info) != 0 {
-
-    for binary in files_info {
-
-      // fmt.print (now_string," - ")
-      name_binary = strings.cut(
-        binary.fullpath,
-        strings.last_index(binary.fullpath, "/"),
-        0,
-        context.temp_allocator,
-      )
-
-      counter += 1
-
-      if DEBUG_PATH {
-        name_binary = strings.trim_left(name_binary, "/")
-        fmt.print(name_binary)
-        fmt.print(" - ")
-        fmt.println(binary.fullpath)
+    fd, err := os.open("/bin", os.O_RDONLY, 0)
+    files_info, ok := os.read_dir(fd, BUFFER_SIZE_OF_EACH_PATH)
+    if ok == 0 {
+      if DEBUG_READ_ERRORN {
+        fmt.println("ERROR READ ::: |", now_string, "|")
       }
-
     }
+
+    if len(files_info) != 0 {
+
+      for binary in files_info {
+
+        // fmt.print (now_string," - ")
+        name_binary = strings.cut(
+          binary.fullpath,
+          strings.last_index(binary.fullpath, "/"),
+          0,
+          context.temp_allocator,
+        )
+
+        counter += 1
+
+        if DEBUG_PATH {
+          name_binary = strings.trim_left(name_binary, "/")
+          fmt.print(name_binary)
+          fmt.print(" - ")
+          fmt.println(binary.fullpath)
+        }
+
+      }
+    }
+
+    fmt.println(counter)
+
   }
-
-  fmt.println(counter)
-
 }
 
-
 main_scheduler :: proc() {
+
+  // put LUA stuff here
 
   // main_proc() // still not working propely
 
