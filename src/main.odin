@@ -33,6 +33,9 @@ main :: proc() {
 
   something := os.get_env("PATH", context.temp_allocator)
 
+  fmt.println ( something )
+
+
   now_string := ""
   name_binary := ""
 
@@ -40,16 +43,19 @@ main :: proc() {
 
   counter := 0
 
-  files_arr_ret: ^c.char
-
   cstr_name: ^c.char
 
   count_files: c.int32_t
 
-  for name in strings.split_after(something, ":", context.temp_allocator) {
-    // for name in strings.split_after("/bin:", ":", context.temp_allocator) { // problem reading /bin directory
+  total: i32 = 0
 
-    now_string = strings.trim_right(name, ":")
+  for name in strings.split_after(something, ":") {
+  // for name in strings.split_after("/usr/bin:", ":", context.temp_allocator) {   // problem reading /bin directory
+
+    files_arr_ret: ^^c.char
+
+    now_string = strings.trim(name, ":")
+    now_string = strings.trim(now_string, " ")
     fmt.println(" :: ", now_string)
 
     cstr_name = cast(^c.char)strings.clone_to_cstring(now_string)
@@ -58,9 +64,23 @@ main :: proc() {
 
     fmt.println(" : ", count_files, " - ", files_arr_ret)
 
+    readdir.debug_read_dir_files(files_arr_ret, count_files)
+
+    { /*
+      for i: i32 = 0; i < count_files; i += 1 {
+        free(&files_arr_ret)
+        files_arr_ret += 1
+      } */
+    }
+
+    readdir.free_read_dir(files_arr_ret, count_files)
+
+    total += count_files
 
     count_files = 0
   }
+
+  fmt.println("total :: ", total)
 
   // params := []string{"&"}
 

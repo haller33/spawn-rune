@@ -17,6 +17,31 @@
 #define MAX_CARACTER_OF_FILE 180
 #define MAX_BYTES_FILE_NAME sizeof(char) * MAX_CARACTER_OF_FILE
 
+
+int debug_read_dir_files (char** files_arr_ret, int32_t size_files) {
+
+  int32_t i;
+
+  for (i = 0; i < size_files; i++) {
+    printf("%s\n",files_arr_ret[i]);
+  }
+
+  return 0;
+}
+
+int free_read_dir (char** files_arr_ret, int32_t size_files) {
+
+  int32_t i;
+
+  for (i = 0; i < size_files; i++) {
+    free(files_arr_ret[i]);
+  }
+
+  free(files_arr_ret);
+
+  return 0;
+}
+
 int count_files_dir(char *name_dir) {
 
   int files_count = 0;
@@ -150,10 +175,17 @@ int main() {
 
   // printf("# %d\n", size_files);
 
+  #if false
   for (i = 0; i < size_files; i++) {
     free(files_arr[i]);
   }
 
   free(files_arr);
+  #endif
+
+  free_read_dir ( files_arr, size_files );
+
+  return 0;
+
 }
 #endif // HAVE_MAIN
