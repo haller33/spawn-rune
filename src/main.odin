@@ -13,7 +13,7 @@ import mem "core:mem"
 import "core:runtime"
 import readdir "../lib/readdir_files"
 
-INTERFACE_RAYLIB :: false
+INTERFACE_RAYLIB :: true
 BUFFER_SIZE_OF_EACH_PATH :: 1024
 DEBUG_PATH :: false
 DEBUG_ERRORN :: false
@@ -124,21 +124,41 @@ main_source :: proc() {
     fmt.println(k)
 
   } */
-  {
+  { // ok
+
+    m_filter :: proc(
+      s: $S/[]$U,
+      f: proc(_: U, _: U) -> bool,
+      m_v: U,
+      allocator := context.allocator,
+    ) -> S {
+      r := make([dynamic]U, 0, 0, allocator)
+      for v in s {
+        if f(v, m_v) {
+          append(&r, v)
+        }
+      }
+      return r[:]
+    }
 
     keys, err := slice.map_keys(hashmap_paths, context.temp_allocator)
 
-    global_search: string = "ema"
+    global_search: string = "gf"
 
-    filter_up :: proc(key_hash: string) -> bool {
-      if strings.has_prefix(key_hash, "gf") {
+    filter_up :: proc(key_hash: string, m_value_of_now: string) -> bool {
+      if strings.has_prefix(key_hash, m_value_of_now) {
         return true
       } else {
         return false
       }
     }
 
-    filtered := slice.filter(keys, filter_up, context.temp_allocator)
+    filtered := m_filter(
+      keys,
+      filter_up,
+      global_search,
+      context.temp_allocator,
+    )
 
     // fmt.println(filtered)
 
