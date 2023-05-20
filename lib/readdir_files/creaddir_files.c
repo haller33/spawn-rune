@@ -14,7 +14,7 @@
 // when used build_c_test.sh need this HAVE_MAIN to be true
 //
 #define HAVE_MAIN false
-#define MAX_CARACTER_OF_FILE 180
+#define MAX_CARACTER_OF_FILE 64
 #define MAX_BYTES_FILE_NAME sizeof(char) * MAX_CARACTER_OF_FILE
 
 int debug_read_dir_files(char **files_arr_ret, int32_t size_files) {

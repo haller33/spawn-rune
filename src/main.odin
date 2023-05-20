@@ -8,6 +8,8 @@ import rand "core:math/rand"
 import "core:strings"
 import os "core:os"
 import c "core:c"
+import mem "core:mem"
+import "core:runtime"
 import readdir "../lib/readdir_files"
 
 INTERFACE_RAYLIB :: false
@@ -16,7 +18,7 @@ DEBUG_PATH :: false
 DEBUG_ERRORN :: false
 DEBUG_READ_ERRORN :: false
 
-main :: proc() {
+main_source :: proc() {
 
   if INTERFACE_RAYLIB {
 
@@ -77,24 +79,22 @@ main :: proc() {
 
       fmt.println(" : ", count_files, " - ", files_arr_ret)
 
-      // readdir.debug_read_dir_files(files_arr_ret, count_files)
-
-
-      strings_now: ^^c.char = (cast(^^c.char)files_arr_ret)
-
       for i: i32 = 0; i < count_files; i += 1 {
-          fmt.println ("String :: ",&(auto_cast strings_now)[0])
-          strings_now+=1
-      }
 
-      // strings.clone_from_cstring(strings_now, context.temp_allocator)
+        fist_offset := cast(^cstring)mem.ptr_offset(files_arr_ret, i)
 
+        c_string_now: cstring = cast(cstring)fist_offset^
 
-      { /*
-      for i: i32 = 0; i < count_files; i += 1 {
-        free(&files_arr_ret)
-        files_arr_ret += 1
-      } */
+        str_now := runtime.cstring_to_string(c_string_now)
+
+        // now_string, str_now
+        concated := []string{now_string, str_now}
+
+        strings.concatenate(concated, context.temp_allocator)
+        fmt.println(concated)
+        hashmap_paths[str_now] = now_string
+
+        fmt.println(c_string_now)
       }
 
       readdir.free_read_dir(files_arr_ret, count_files)
@@ -229,61 +229,65 @@ main_proc :: proc() {
     now_string = strings.trim_right(name, ":")
     fmt.println(" :: ", now_string)
 
-    fd, err := os.open(now_string, os.O_RDONLY, 0)
-    if !(err == 0) {
 
-      if DEBUG_ERRORN {
-        fmt.println("ERROR OPEN |", now_string, "|") // fmt.print(now_string)  // return
-      }
-      do_readit = false
-    }
-    defer os.close(fd)
+    if os.is_dir_path(now_string) {
 
-    if do_readit {
-      files_info, ok := os.read_dir(
-        fd,
-        BUFFER_SIZE_OF_EACH_PATH,
-        context.temp_allocator,
-      )
-      if ok == 0 {
-        if DEBUG_READ_ERRORN {
-          fmt.println("ERROR READ ::: |", now_string, "|")
+      fd, err := os.open(now_string, os.O_RDONLY, 0)
+      if !(err == 0) {
+
+        if DEBUG_ERRORN {
+          fmt.println("ERROR OPEN |", now_string, "|") // fmt.print(now_string)  // return
         }
+        do_readit = false
       }
+      defer os.close(fd)
 
-      if len(files_info) != 0 {
-
-        for binary in files_info {
-
-          // fmt.print (now_string," - ")
-          name_binary = strings.cut(
-            binary.fullpath,
-            strings.last_index(binary.fullpath, "/"),
-            0,
-            context.temp_allocator,
-          )
-
-          counter += 1
-
-          if DEBUG_PATH {
-            name_binary = strings.trim_left(name_binary, "/")
-            fmt.print(name_binary)
-            fmt.print(" - ")
-            fmt.println(binary.fullpath)
+      if do_readit {
+        files_info, ok := os.read_dir(
+          fd,
+          BUFFER_SIZE_OF_EACH_PATH,
+          context.temp_allocator,
+        )
+        if ok == 0 {
+          if DEBUG_READ_ERRORN {
+            fmt.println("ERROR READ ::: |", now_string, "|")
           }
-
         }
+
+        if len(files_info) != 0 {
+
+          for binary in files_info {
+
+            // fmt.print (now_string," - ")
+            name_binary = strings.cut(
+              binary.fullpath,
+              strings.last_index(binary.fullpath, "/"),
+              0,
+              context.temp_allocator,
+            )
+
+            counter += 1
+
+            if DEBUG_PATH {
+              name_binary = strings.trim_left(name_binary, "/")
+              fmt.print(name_binary)
+              fmt.print(" - ")
+              fmt.println(binary.fullpath)
+            }
+
+          }
+        }
+      } else {
+        if DEBUG_ERRORN {
+          fmt.println("Do not Read |", now_string, "|")
+        }
+        do_readit = true
       }
-    } else {
-      if DEBUG_ERRORN {
-        fmt.println("Do not Read |", now_string, "|")
-      }
-      do_readit = true
+
+      // fmt.println ( i )
     }
-
-    // fmt.println ( i )
-
   }
+
 
   // params := []string{"&"}
 
@@ -331,5 +335,12 @@ main_proc :: proc() {
 
     rl.EndDrawing()
   }
+}
 
+
+main :: proc() {
+
+  // main_proc() // still not working propely
+
+  main_source()
 }
