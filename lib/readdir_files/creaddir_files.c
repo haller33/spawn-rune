@@ -2,10 +2,12 @@
 #include <dirent.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <errno.h>
 
 //
 // this preserve program to be just a library
@@ -23,6 +25,10 @@ int count_files_dir(char *name_dir) {
 
   folder = opendir(name_dir);
 
+  if (ENOENT == errno) {
+    return -4; // directory do not exist
+  }
+
   if (folder == NULL) {
     perror("Unable to read directory for count");
     return (-1);
@@ -39,21 +45,26 @@ int count_files_dir(char *name_dir) {
   return files_count; // remove from the count the . .. directories
 }
 
-int creaddir_files(char *name_dir, char ***files_arr_ret, int *size_of_dir_t) {
+int creaddir_files(char *name_dir, char ***files_arr_ret, int32_t *size_of_dir_t) {
 
   DIR *folder;
   struct dirent *entry;
-  int files_count = 0;
-  int i = 0;
+  int32_t files_count = 0;
+  int32_t i = 0;
   char **files_arr = NULL;
   // char* tmp_str = NULL;
 
   files_count = count_files_dir(name_dir);
 
-  assert(files_count > -1);
+  // directory do not exist
+  if (files_count == -4)
+    return -4;
 
   if (files_count == 0)
     return -2;
+
+  assert(files_count > -1);
+
 
   // not include . .. folders on list, that a ready have count on
   // count_files_dir()
@@ -109,8 +120,8 @@ int main() {
   // char *directory =
   // "/home/synbian/git/clone/Odin/spawn-rune/readdir_files/test";
 
-  int size_files = 0;
-  int i = 0;
+  int32_t size_files = 0;
+  int32_t i = 0;
 
   creaddir_files(directory, &files_arr, &size_files);
 
