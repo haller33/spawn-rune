@@ -1,0 +1,8 @@
+
+* simple read of a directory folder
+
+wich this program, you can read files from a folder as a C library for other languages
+
+** do testing
+
+to create a teste, need to change the HAVE_MAIN on ./readdir_files/readdir_files.c to TRUE, so you can do build_c_test.sh
