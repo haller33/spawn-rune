@@ -1,7 +1,7 @@
 
 * simple read of a directory folder
 
-wich this program, you can read files from a folder as a C library for other languages
+which this program, you can read files from a folder as a C library for other languages
 
 ** do testing
 

@@ -2,7 +2,7 @@
     "collections": [
         { "name": "vendor", "path": "/home/synbian/git/clone/Odin/odin/vendor" },
         { "name": "core", "path": "/home/synbian/git/clone/Odin/odin/core" },
-        { "name": "shared", "path": "/home/synbian/git/clone/Odin/spawn-rune/" }
+        { "name": "shared", "path": "/home/synbian/git/clone/Odin/spawn-rune/src" }
     ],
     "enable_document_symbols": true,
     "enable_semantic_tokens": true,

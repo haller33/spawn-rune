@@ -15,7 +15,7 @@ DEBUG_PATH :: false
 DEBUG_ERRORN :: false
 DEBUG_READ_ERRORN :: false
 
-main :: proc () {
+main :: proc() {
 
     rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
     rl.SetTargetFPS(60)
@@ -44,7 +44,7 @@ main :: proc () {
         // for name in strings.split_after("/bin:", ":", context.temp_allocator) { // problem reading /bin directory
 
         now_string = strings.trim_right(name, ":")
-        fmt.println (" :: ", now_string)
+        fmt.println(" :: ", now_string)
 
         fd, err := os.open(now_string, os.O_RDONLY, 0)
         if !(err == 0) {
@@ -64,7 +64,7 @@ main :: proc () {
             )
             if ok == 0 {
                 if DEBUG_READ_ERRORN {
-                    fmt.println ("ERROR READ ::: |", now_string, "|")
+                    fmt.println("ERROR READ ::: |", now_string, "|")
                 }
             }
 
@@ -93,7 +93,7 @@ main :: proc () {
             }
         } else {
             if DEBUG_ERRORN {
-                fmt.println ("Do not Read |", now_string, "|")
+                fmt.println("Do not Read |", now_string, "|")
             }
             do_readit = true
         }
@@ -118,7 +118,7 @@ main :: proc () {
 
     pause: bool = false
 
-    fmt.println ("counter :: ", counter)
+    fmt.println("counter :: ", counter)
 
     for is_running && rl.WindowShouldClose() == false {
 
@@ -150,21 +150,17 @@ main :: proc () {
     }
 }
 
-main_test :: proc () {
+main_test :: proc() {
 
     counter := 0
 
-    name_binary, now_string : string = "", ""
+    name_binary, now_string: string = "", ""
 
     fd, err := os.open("/bin", os.O_RDONLY, 0)
-    files_info, ok := os.read_dir(
-        fd,
-        BUFFER_SIZE_OF_EACH_PATH,
-        context.temp_allocator
-    )
+    files_info, ok := os.read_dir(fd, BUFFER_SIZE_OF_EACH_PATH)
     if ok == 0 {
         if DEBUG_READ_ERRORN {
-            fmt.println ("ERROR READ ::: |", now_string, "|")
+            fmt.println("ERROR READ ::: |", now_string, "|")
         }
     }
 
@@ -192,7 +188,7 @@ main_test :: proc () {
         }
     }
 
-    fmt.println (counter)
+    fmt.println(counter)
 
 }
 
@@ -223,10 +219,10 @@ main_proc :: proc() {
     counter := 0
 
     for name in strings.split_after(something, ":", context.temp_allocator) {
-    // for name in strings.split_after("/bin:", ":", context.temp_allocator) { // problem reading /bin directory
+        // for name in strings.split_after("/bin:", ":", context.temp_allocator) { // problem reading /bin directory
 
         now_string = strings.trim_right(name, ":")
-        fmt.println (" :: ", now_string)
+        fmt.println(" :: ", now_string)
 
         fd, err := os.open(now_string, os.O_RDONLY, 0)
         if !(err == 0) {
@@ -246,7 +242,7 @@ main_proc :: proc() {
             )
             if ok == 0 {
                 if DEBUG_READ_ERRORN {
-                    fmt.println ("ERROR READ ::: |", now_string, "|")
+                    fmt.println("ERROR READ ::: |", now_string, "|")
                 }
             }
 
@@ -275,7 +271,7 @@ main_proc :: proc() {
             }
         } else {
             if DEBUG_ERRORN {
-                fmt.println ("Do not Read |", now_string, "|")
+                fmt.println("Do not Read |", now_string, "|")
             }
             do_readit = true
         }
@@ -300,7 +296,7 @@ main_proc :: proc() {
 
     pause: bool = false
 
-    fmt.println ("counter :: ", counter)
+    fmt.println("counter :: ", counter)
 
     for is_running && rl.WindowShouldClose() == false {
 
