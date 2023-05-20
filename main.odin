@@ -9,6 +9,7 @@ import "core:strings"
 import os "core:os"
 
 BUFFER_SIZE_OF_EACH_PATH :: 1024
+DEBUG_PATH :: false
 
 main :: proc() {
 
@@ -34,9 +35,12 @@ main :: proc() {
 
     do_readit := true
 
-    for name in strings.split_after(something, ":", context.temp_allocator) {
-        // for name in strings.split_after("/bin:", ":", context.temp_allocator) { // problem reading /bin directory
+    counter := 0
 
+    // for name in strings.split_after(something, ":", context.temp_allocator) {
+    for name in strings.split_after("/bin", ":", context.temp_allocator) { // problem reading /bin directory
+
+        fmt.println ("current name ", name)
         now_string = strings.trim_right(name, ":")
 
         fd, err := os.open(now_string, os.O_RDONLY, 0)
@@ -64,14 +68,21 @@ main :: proc() {
                         0,
                         context.temp_allocator,
                     )
-                    name_binary = strings.trim_left(name_binary, "/")
-                    fmt.print(name_binary)
-                    fmt.print(" - ")
-                    fmt.println(binary.fullpath)
+
+                    counter += 1
+
+                    if DEBUG_PATH {
+                        name_binary = strings.trim_left(name_binary, "/")
+                        fmt.print(name_binary)
+                        fmt.print(" - ")
+                        fmt.println(binary.fullpath)
+                    }
 
                 }
             }
         } else {
+            fmt.print (" ERRR : ",now_string, " :: ")
+            fmt.println(err)
             do_readit = true
         }
 
@@ -94,6 +105,8 @@ main :: proc() {
     old_current_speed: f32 = current_speed
 
     pause: bool = false
+
+    fmt.println ("counter :: ", counter)
 
     for is_running && rl.WindowShouldClose() == false {
 
