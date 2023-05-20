@@ -12,11 +12,12 @@ import mem "core:mem"
 import "core:runtime"
 import readdir "../lib/readdir_files"
 
-INTERFACE_RAYLIB :: true
+INTERFACE_RAYLIB :: false
 BUFFER_SIZE_OF_EACH_PATH :: 1024
 DEBUG_PATH :: false
 DEBUG_ERRORN :: false
 DEBUG_READ_ERRORN :: false
+COUNT_TOTAL_PROGRAMS_PATH :: false
 
 main_source :: proc() {
 
@@ -24,7 +25,6 @@ main_source :: proc() {
 
     rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
     rl.SetTargetFPS(60)
-
 
     windown_dim :: n.int2{400, 100}
 
@@ -59,7 +59,7 @@ main_source :: proc() {
 
   total: i32 = 0
 
-  for name in strings.split_after(something, ":") {
+  for name in strings.split_after(something, ":", context.temp_allocator) {
 
     files_arr_ret: ^^c.char
 
@@ -68,14 +68,15 @@ main_source :: proc() {
 
     if os.is_dir_path(now_string) {
 
-      fmt.println(" :: ", now_string)
-
       cstr_name =
       cast(^c.char)strings.clone_to_cstring(now_string, context.temp_allocator)
 
       readdir.creaddir_files(cstr_name, &files_arr_ret, &count_files)
 
-      fmt.println(" : ", count_files, " - ", files_arr_ret)
+      if DEBUG_PATH {
+        fmt.println(" :: ", now_string)
+        fmt.println(" : ", count_files, " - ", files_arr_ret)
+      }
 
       for i: i32 = 0; i < count_files; i += 1 {
 
@@ -103,16 +104,19 @@ main_source :: proc() {
 
       readdir.free_read_dir(files_arr_ret, count_files)
 
-      total += count_files
+      if COUNT_TOTAL_PROGRAMS_PATH {
+        total += count_files
+      }
 
       count_files = 0
     }
-
   }
 
-  fmt.println("total :: ", total)
+  if COUNT_TOTAL_PROGRAMS_PATH {
+    fmt.println("total :: ", total)
+  }
 
-/*
+  /*
   for i, k in hashmap_paths {
     fmt.println(i)
     fmt.println(k)
