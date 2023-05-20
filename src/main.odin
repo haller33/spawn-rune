@@ -31,7 +31,7 @@ main_source :: proc() {
 
   windown_dim :: n.int2{400, 100}
 
-  if INTERFACE_RAYLIB {
+  when INTERFACE_RAYLIB {
 
 
     rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
@@ -62,7 +62,7 @@ main_source :: proc() {
 
   // fmt.println ("Hello World")
 
-  hashmap_paths := make(map[string]string)
+  hashmap_paths := make(map[string]string, 11264, context.temp_allocator)
   defer delete(hashmap_paths)
 
   enviropment_vars := os.get_env("PATH", context.temp_allocator)
@@ -199,7 +199,7 @@ main_source :: proc() {
 
   // os.execvp("/usr/bin/caja &", params)
 
-  if INTERFACE_RAYLIB {
+  when INTERFACE_RAYLIB {
     is_running :: true
 
     // fmt.println(keyfor)
@@ -253,7 +253,7 @@ main_source :: proc() {
 
         swap_str_arr = []string{word, str_temp}
 
-        word = strings.concatenate(swap_str_arr)
+        word = strings.concatenate(swap_str_arr, context.temp_allocator)
 
         if DEBUG_INTERFACE_WORD {fmt.println(word)}
 
@@ -275,7 +275,7 @@ main_source :: proc() {
 
         swap_str_arr = []string{word, " "}
 
-        word = strings.concatenate(swap_str_arr)
+        word = strings.concatenate(swap_str_arr, context.temp_allocator)
 
         if DEBUG_INTERFACE_WORD {fmt.println(word)}
 
