@@ -12,7 +12,7 @@ import mem "core:mem"
 import "core:runtime"
 import readdir "../lib/readdir_files"
 
-INTERFACE_RAYLIB :: false
+INTERFACE_RAYLIB :: true
 BUFFER_SIZE_OF_EACH_PATH :: 1024
 DEBUG_PATH :: false
 DEBUG_ERRORN :: false
@@ -50,18 +50,16 @@ main_source :: proc() {
 
   counter := 0
 
+  copy_str_now: string
+  c_string_now: cstring
+  fist_offset: ^cstring
   cstr_name: ^c.char
 
   count_files: c.int32_t
 
   total: i32 = 0
 
-  // for name in strings.split_after(something, ":") {
-  for name in strings.split_after(
-    "/home/synbian/rbin",
-    ":",
-    context.temp_allocator,
-  ) {   // problem reading /bin directory
+  for name in strings.split_after(something, ":") {
 
     files_arr_ret: ^^c.char
 
@@ -85,16 +83,22 @@ main_source :: proc() {
 
         c_string_now: cstring = cast(cstring)fist_offset^
 
-        str_now := runtime.cstring_to_string(c_string_now)
+        /// try to convert from cstring to string copy it
+        // str_now := runtime.cstring_to_string(c_string_now)
+        // runtime.copy_from_string(str_now, copy_str_now )
 
+        copy_str_now := strings.clone_from_cstring(
+          c_string_now,
+          context.temp_allocator,
+        )
+
+        //// concatenate path with name string
         // now_string, str_now
-        concated := []string{now_string, str_now}
+        // concated := []string{now_string, copy_str_now}
+        // strings.concatenate(concated, context.temp_allocator)
+        // fmt.println(concated)
 
-        strings.concatenate(concated, context.temp_allocator)
-        fmt.println(concated)
-        hashmap_paths[str_now] = now_string
-
-        fmt.println(c_string_now)
+        hashmap_paths[copy_str_now] = now_string
       }
 
       readdir.free_read_dir(files_arr_ret, count_files)
@@ -104,10 +108,16 @@ main_source :: proc() {
       count_files = 0
     }
 
-    fmt.println("total :: ", total)
-
   }
-  // params := []string{"&"}
+
+  fmt.println("total :: ", total)
+
+/*
+  for i, k in hashmap_paths {
+    fmt.println(i)
+    fmt.println(k)
+
+  } */
 
   // os.execvp("/usr/bin/caja &", params)
 
@@ -156,7 +166,7 @@ main_source :: proc() {
   }
 }
 
-main_test :: proc() {
+main_test_fail :: proc() {
 
   counter := 0
 
@@ -197,146 +207,6 @@ main_test :: proc() {
   fmt.println(counter)
 
 }
-
-main_proc :: proc() {
-
-  rl.InitWindow(windown_dim.x, windown_dim.y, "Spawn Rune")
-  rl.SetTargetFPS(60)
-
-  keyfor: rl.KeyboardKey
-  keyfor = rl.GetKeyPressed()
-
-
-  windown_dim :: n.int2{400, 100}
-
-  // fmt.println ("Hello World")
-
-  hashmap_paths := make(map[string]string)
-  defer delete(hashmap_paths)
-
-  something := os.get_env("PATH", context.temp_allocator)
-
-  now_string := ""
-  name_binary := ""
-
-  do_readit := true
-
-  counter := 0
-
-  for name in strings.split_after(something, ":", context.temp_allocator) {
-    // for name in strings.split_after("/bin:", ":", context.temp_allocator) { // problem reading /bin directory
-
-    now_string = strings.trim_right(name, ":")
-    fmt.println(" :: ", now_string)
-
-
-    if os.is_dir_path(now_string) {
-
-      fd, err := os.open(now_string, os.O_RDONLY, 0)
-      if !(err == 0) {
-
-        if DEBUG_ERRORN {
-          fmt.println("ERROR OPEN |", now_string, "|") // fmt.print(now_string)  // return
-        }
-        do_readit = false
-      }
-      defer os.close(fd)
-
-      if do_readit {
-        files_info, ok := os.read_dir(
-          fd,
-          BUFFER_SIZE_OF_EACH_PATH,
-          context.temp_allocator,
-        )
-        if ok == 0 {
-          if DEBUG_READ_ERRORN {
-            fmt.println("ERROR READ ::: |", now_string, "|")
-          }
-        }
-
-        if len(files_info) != 0 {
-
-          for binary in files_info {
-
-            // fmt.print (now_string," - ")
-            name_binary = strings.cut(
-              binary.fullpath,
-              strings.last_index(binary.fullpath, "/"),
-              0,
-              context.temp_allocator,
-            )
-
-            counter += 1
-
-            if DEBUG_PATH {
-              name_binary = strings.trim_left(name_binary, "/")
-              fmt.print(name_binary)
-              fmt.print(" - ")
-              fmt.println(binary.fullpath)
-            }
-
-          }
-        }
-      } else {
-        if DEBUG_ERRORN {
-          fmt.println("Do not Read |", now_string, "|")
-        }
-        do_readit = true
-      }
-
-      // fmt.println ( i )
-    }
-  }
-
-
-  // params := []string{"&"}
-
-  // os.execvp("/usr/bin/caja &", params)
-
-
-  is_running :: true
-
-  // fmt.println(keyfor)
-
-  rl.BeginDrawing()
-
-  current_speed: f32 = 6.0
-  old_current_speed: f32 = current_speed
-
-  pause: bool = false
-
-  fmt.println("counter :: ", counter)
-
-  for is_running && rl.WindowShouldClose() == false {
-
-    rl.DrawText("Hello World!", 10, 10, 20, rl.DARKGRAY)
-    /*scores: cstring = strings.clone_to_cstring(
-            fmt.tprintf("hello world",  context.temp_allocator,
-        )*/
-
-    // rl.DrawText(string(windown_dim.x), 0, 0, 20, rl.DARKGRAY)
-    // rl.DrawText(string(windown_dim.y), 0, 10, 20, rl.DARKGRAY)
-
-    color_now := rl.RED
-
-    /// handle game play velocity
-    keyfor = rl.GetKeyPressed()
-    if keyfor == rl.KeyboardKey.ENTER {
-      color_now = rl.BLUE
-
-      os.execvp("/usr/bin/thunar", []string{})
-    }
-
-    rl.DrawRectangle(0, 0, 30, 30, color_now)
-
-    rl.ClearBackground(rl.WHITE)
-
-    rl.DrawText("Spawn Rune", 100, 100, 20, rl.DARKGRAY)
-
-    rl.EndDrawing()
-  }
-}
-
 
 main :: proc() {
 
