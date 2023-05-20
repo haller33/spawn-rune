@@ -1,4 +1,4 @@
-package creadddir
+package creaddir
 
 import "core:c"
 
