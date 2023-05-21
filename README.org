@@ -6,10 +6,20 @@ Spawn programs with a search on PATH and custom directories, also .desktop files
 
 [[https://github.com/haller33/spawn-rune/raw/master/assets/video_example.webm]]
 
-<<<<<<< Updated upstream
 [[../demo/assets/demonstration.gif?raw=true]]
 
-=======
+
+** demos
+
+[[assets/notfound_example.png]]
+
+
+[[assets/preview_emacs.png]]
+
+
+[[assets/preview_simple.png]]
+
+
 ** motivation
 
 have switch to MATE desktop, and wonder, if have some new launcher of programs on linux, remainds
