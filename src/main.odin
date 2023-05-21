@@ -23,6 +23,7 @@ TEST_MODE :: false
 INTERFACE_RAYLIB :: true
 DEBUG_PATH :: false
 DEBUG_INTERFACE_WORD :: false
+DEBUG_FILTERING_SEARCH :: true
 DEBUG_READ_ERRORN :: false
 COUNT_TOTAL_PROGRAMS_PATH :: false
 TEST_STATEMENT :: false
@@ -165,8 +166,7 @@ main_source :: proc() {
     keys_global: []string,
     hashmap: ^map[string]string,
   ) -> (
-    path: string,
-    not_found_by_search: bool,
+    path: string
   ) {
 
     filtered := m_filter(
@@ -187,7 +187,7 @@ main_source :: proc() {
       joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
       fmt.println(joined)
 
-      return joined, true
+      return joined
     } else if lenof > 0 {
 
       /// there is no much files
@@ -198,19 +198,19 @@ main_source :: proc() {
       /// the majority of time is sloww
       // sort.bubble_sort(filtered)
 
-      fmt.println(filtered)
+      when DEBUG_FILTERING_SEARCH { fmt.println(filtered) }
 
       thing := slice.first(filtered)
 
       jj := []string{hashmap[thing], thing}
 
       joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
-      fmt.println(joined)
-      return joined, true
+        when DEBUG_FILTERING_SEARCH { fmt.println(joined) }
+      return joined
     } else {
 
-      fmt.println("not found")
-      return "", false
+        when DEBUG_FILTERING_SEARCH { fmt.println("not found") }
+      return ""
     }
   }
 
@@ -218,6 +218,7 @@ main_source :: proc() {
   // os.execvp("/usr/bin/caja &", params)
 
   when INTERFACE_RAYLIB {
+
     is_running :: true
 
     // fmt.println(keyfor)
@@ -257,6 +258,8 @@ main_source :: proc() {
 
         if runner_simbol != "" {
           os.execvp(runner_simbol, []string{})
+        } else {
+            not_found_by_search = true
         }
       } else if (keyfor >= rl.KeyboardKey.A) && (keyfor <= rl.KeyboardKey.Z) {
 
@@ -272,7 +275,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol, not_found_by_search = filter_enviropment(
+        runner_simbol = filter_enviropment(
           word,
           keys_global,
           &hashmap_paths,
@@ -290,7 +293,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol, not_found_by_search = filter_enviropment(
+        runner_simbol = filter_enviropment(
           word,
           keys_global,
           &hashmap_paths,
@@ -304,7 +307,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol, not_found_by_search = filter_enviropment(
+        runner_simbol = filter_enviropment(
           word,
           keys_global,
           &hashmap_paths,
@@ -317,7 +320,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol, not_found_by_search = filter_enviropment(
+        runner_simbol = filter_enviropment(
           word,
           keys_global,
           &hashmap_paths,
@@ -331,7 +334,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol, not_found_by_search = filter_enviropment(
+        runner_simbol = filter_enviropment(
           word,
           keys_global,
           &hashmap_paths,
@@ -349,7 +352,7 @@ main_source :: proc() {
 
       rl.DrawText(
         temp_word,
-        (windown_dim.x / 2) - 20,
+        (windown_dim.x / 2) - 40,
         (windown_dim.y / 2) - 20,
         20,
         rl.DARKGRAY,

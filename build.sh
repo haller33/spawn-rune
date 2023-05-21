@@ -3,7 +3,11 @@
 set -x
 
 
-if [ $# -eq 1 ]; then
+if [ $# -eq 2 ]; then
+
+    odin build src -out:spawn_rune.bin -o:speed && echo "OK"
+
+elif [ $# -eq 1 ]; then
     clang -std=c89 -g -D_DEFAULT_SOURCE -O3 \
         -c ./lib/readdir_files/creaddir_files.c -o ./lib/creaddir_files.a
 
@@ -14,6 +18,5 @@ else
         -c ./lib/readdir_files/creaddir_files.c -o ./lib/creaddir_files.a
 
     odin build src -out:spawn_rune.bin && echo "OK"
-        # -o:speed && echo "OK"
 
 fi
