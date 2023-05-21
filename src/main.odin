@@ -13,6 +13,7 @@ import mem "core:mem"
 import "core:runtime"
 import "core:unicode/utf8"
 import "core:unicode"
+import "core:sort"
 import readdir "../lib/readdir_files"
 
 BUFFER_SIZE_OF_EACH_PATH :: 1024
@@ -144,6 +145,8 @@ main_source :: proc() {
 
   keys_global, err := slice.map_keys(hashmap_paths, context.temp_allocator)
 
+  not_found_by_search: bool = false
+
 
   filter_up :: proc(key_hash: string, m_value_of_now: string) -> bool {
     if strings.has_prefix(key_hash, m_value_of_now) {
@@ -161,7 +164,10 @@ main_source :: proc() {
     search_for: string,
     keys_global: []string,
     hashmap: ^map[string]string,
-  ) -> string {
+  ) -> (
+    path: string,
+    not_found_by_search: bool,
+  ) {
 
     filtered := m_filter(
       keys_global,
@@ -170,20 +176,41 @@ main_source :: proc() {
       context.temp_allocator,
     )
 
-    fmt.println(filtered)
+    lenof := len(filtered)
 
-    if len(filtered) > 0 {
+    if lenof == 1 {
+
       thing := slice.first(filtered)
 
       jj := []string{hashmap[thing], thing}
 
       joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
       fmt.println(joined)
-      return joined
+
+      return joined, true
+    } else if lenof > 0 {
+
+      /// there is no much files
+      /// so because on 76% of time of search, this feels more rapid
+      /// need to be check
+      slice.sort(filtered)
+
+      /// the majority of time is sloww
+      // sort.bubble_sort(filtered)
+
+      fmt.println(filtered)
+
+      thing := slice.first(filtered)
+
+      jj := []string{hashmap[thing], thing}
+
+      joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
+      fmt.println(joined)
+      return joined, true
     } else {
 
       fmt.println("not found")
-      return ""
+      return "", false
     }
   }
 
@@ -245,12 +272,17 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol, not_found_by_search = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
 
       } else if keyfor == rl.KeyboardKey.BACKSPACE {
 
         if len(word) == 1 {
           word = ""
+          runner_simbol = ""
         } else {
 
           word = strings.cut(word, 0, len(word) - 1, context.temp_allocator)
@@ -258,7 +290,11 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol, not_found_by_search = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
       } else if keyfor == rl.KeyboardKey.SPACE {
 
         swap_str_arr = []string{word, " "}
@@ -267,7 +303,41 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol, not_found_by_search = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
+      } else if keyfor == rl.KeyboardKey.PERIOD {
+
+        swap_str_arr = []string{word, "."}
+
+        word = strings.concatenate(swap_str_arr, context.temp_allocator)
+
+        when DEBUG_INTERFACE_WORD {fmt.println(word)}
+
+        runner_simbol, not_found_by_search = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
+      } else if (keyfor == rl.KeyboardKey.MINUS) ||
+         (keyfor == rl.KeyboardKey.KP_SUBTRACT) {
+
+        swap_str_arr = []string{word, "-"}
+
+        word = strings.concatenate(swap_str_arr, context.temp_allocator)
+
+        when DEBUG_INTERFACE_WORD {fmt.println(word)}
+
+        runner_simbol, not_found_by_search = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
+      } else if keyfor == rl.KeyboardKey.TAB {
+
+        /// TODOOOOOOO : add rotate on list of results for search of now
       }
 
       temp_word = strings.unsafe_string_to_cstring(word)
@@ -283,6 +353,17 @@ main_source :: proc() {
         20,
         rl.DARKGRAY,
       )
+
+      if not_found_by_search {
+
+        rl.DrawText(
+          "not found",
+          (windown_dim.x / 2) - 20,
+          (windown_dim.y / 2) - 40,
+          20,
+          rl.RED,
+        )
+      }
 
       rl.EndDrawing()
     }
