@@ -6,7 +6,7 @@ Spawn programs with a search on PATH and custom directories, also .desktop files
 
 [[https://github.com/haller33/spawn-rune/raw/master/assets/video_example.webm]]
 
-[[../assets/video_example.webm?raw=true]]
+[[./assets/video_example.webm?raw=true]]
 
 
 * version of [[https://github.com/odin-lang/odin][Odin]]
