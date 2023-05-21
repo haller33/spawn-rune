@@ -166,7 +166,7 @@ main_source :: proc() {
     keys_global: []string,
     hashmap: ^map[string]string,
   ) -> (
-    path: string
+    path: string,
   ) {
 
     filtered := m_filter(
@@ -193,23 +193,25 @@ main_source :: proc() {
       /// there is no much files
       /// so because on 76% of time of search, this feels more rapid
       /// need to be check
-      slice.sort(filtered)
+      if lenof < 15 {
+        // the majority of time is sloww on large sets
+        sort.bubble_sort(filtered)
 
-      /// the majority of time is sloww
-      // sort.bubble_sort(filtered)
-
-      when DEBUG_FILTERING_SEARCH { fmt.println(filtered) }
+      } else {
+        slice.sort(filtered)
+      }
+      when DEBUG_FILTERING_SEARCH {fmt.println(filtered)}
 
       thing := slice.first(filtered)
 
       jj := []string{hashmap[thing], thing}
 
       joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
-        when DEBUG_FILTERING_SEARCH { fmt.println(joined) }
+      when DEBUG_FILTERING_SEARCH {fmt.println(joined)}
       return joined
     } else {
 
-        when DEBUG_FILTERING_SEARCH { fmt.println("not found") }
+      when DEBUG_FILTERING_SEARCH {fmt.println("not found")}
       return ""
     }
   }
@@ -259,7 +261,7 @@ main_source :: proc() {
         if runner_simbol != "" {
           os.execvp(runner_simbol, []string{})
         } else {
-            not_found_by_search = true
+          not_found_by_search = true
         }
       } else if (keyfor >= rl.KeyboardKey.A) && (keyfor <= rl.KeyboardKey.Z) {
 
@@ -275,11 +277,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(
-          word,
-          keys_global,
-          &hashmap_paths,
-        )
+        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
 
       } else if keyfor == rl.KeyboardKey.BACKSPACE {
 
@@ -293,11 +291,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(
-          word,
-          keys_global,
-          &hashmap_paths,
-        )
+        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
         not_found_by_search = false
       } else if keyfor == rl.KeyboardKey.SPACE {
 
@@ -307,11 +301,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(
-          word,
-          keys_global,
-          &hashmap_paths,
-        )
+        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
       } else if keyfor == rl.KeyboardKey.PERIOD {
 
         swap_str_arr = []string{word, "."}
@@ -320,11 +310,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(
-          word,
-          keys_global,
-          &hashmap_paths,
-        )
+        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
       } else if (keyfor == rl.KeyboardKey.MINUS) ||
          (keyfor == rl.KeyboardKey.KP_SUBTRACT) {
 
@@ -334,11 +320,7 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(
-          word,
-          keys_global,
-          &hashmap_paths,
-        )
+        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
       } else if keyfor == rl.KeyboardKey.TAB {
 
         /// TODOOOOOOO : add rotate on list of results for search of now
