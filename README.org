@@ -26,7 +26,6 @@ Spawn programs with a search on PATH and custom directories, also .desktop files
 have switch to MATE desktop, and wonder, if have some new launcher of programs on linux, remainds
 everytime of the xmonad search comand that have, and under if there is a good one to use on MATE and do not
 cause a lot of load average on the system
->>>>>>> Stashed changes
 
 * version of [[https://github.com/odin-lang/odin][Odin]]
 
