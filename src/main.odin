@@ -24,7 +24,7 @@ INTERFACE_RAYLIB :: true
 DEBUG_PATH :: false
 DEBUG_INTERFACE_WORD :: false
 
-DEBUG_FILTERING_SEARCH :: true // this is for main debug
+DEBUG_FILTERING_SEARCH :: false // this is for main debug
 
 DEBUG_READ_ERRORN :: false
 COUNT_TOTAL_PROGRAMS_PATH :: false
@@ -150,7 +150,6 @@ main_source :: proc() {
 
   not_found_by_search: bool = false
 
-
   filter_up :: proc(key_hash: string, m_value_of_now: string) -> bool {
     if strings.has_prefix(key_hash, m_value_of_now) {
       return true
@@ -169,6 +168,7 @@ main_source :: proc() {
     hashmap: ^map[string]string,
   ) -> (
     path: string,
+    filterof: []string,
   ) {
 
     filtered := m_filter(
@@ -187,9 +187,9 @@ main_source :: proc() {
       jj := []string{hashmap[thing], thing}
 
       joined, err_e := strings.join(jj, "/", context.temp_allocator)
-      fmt.println(joined)
+      // fmt.println(joined)
 
-      return joined
+      return joined, filtered
     } else if lenof > 0 {
 
       /// there is no much files
@@ -203,21 +203,29 @@ main_source :: proc() {
         sort.bubble_sort(filtered)
 
       } else {
-        slice.sort(filtered)
+        slice.sort(filtered) // quicksort
       }
       when DEBUG_FILTERING_SEARCH {fmt.println(filtered)}
 
       thing := slice.first(filtered)
 
+      reduced: []string
+
+      if lenof < 10 {
+        reduced, _ = slice.split_at(filtered, lenof)
+      } else {
+        reduced, _ = slice.split_at(filtered, 10)
+      }
+
       jj := []string{hashmap[thing], thing}
 
       joined, err_e := strings.join(jj, "/", context.temp_allocator)
       when DEBUG_FILTERING_SEARCH {fmt.println(joined)}
-      return joined
+      return joined, reduced
     } else {
 
       when DEBUG_FILTERING_SEARCH {fmt.println("not found")}
-      return ""
+      return "", []string{}
     }
   }
 
@@ -240,11 +248,14 @@ main_source :: proc() {
 
     word: string = ""
 
-    temp_word: cstring
+    // temp_word: cstring
     rune_one_caracter: rune
     runes_swaps: []rune
     swap_str_arr: []string
     str_temp: string
+
+    filter_now: []string
+    raw_arr_filter: string
 
     for is_running && rl.WindowShouldClose() == false {
 
@@ -279,7 +290,11 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol, filter_now = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
 
       } else if keyfor == rl.KeyboardKey.BACKSPACE {
 
@@ -293,7 +308,11 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol, filter_now = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
         not_found_by_search = false
       } else if keyfor == rl.KeyboardKey.SPACE {
 
@@ -303,7 +322,11 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol, filter_now = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
       } else if keyfor == rl.KeyboardKey.PERIOD {
 
         swap_str_arr = []string{word, "."}
@@ -312,7 +335,11 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol, filter_now = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
       } else if (keyfor == rl.KeyboardKey.MINUS) ||
          (keyfor == rl.KeyboardKey.KP_SUBTRACT) {
 
@@ -322,24 +349,36 @@ main_source :: proc() {
 
         when DEBUG_INTERFACE_WORD {fmt.println(word)}
 
-        runner_simbol = filter_enviropment(word, keys_global, &hashmap_paths)
+        runner_simbol, filter_now = filter_enviropment(
+          word,
+          keys_global,
+          &hashmap_paths,
+        )
       } else if keyfor == rl.KeyboardKey.TAB {
 
         /// TODOOOOOOO : add rotate on list of results for search of now
       }
 
-      temp_word = strings.unsafe_string_to_cstring(word)
+      raw_arr_filter = strings.join(filter_now, " ", context.temp_allocator)
 
       rl.ClearBackground(rl.WHITE)
 
       rl.DrawText("Spawn Rune", 100, 100, 20, rl.DARKGRAY)
 
       rl.DrawText(
-        temp_word,
+        strings.unsafe_string_to_cstring(word),
         (windown_dim.x / 2) - 40,
         (windown_dim.y / 2) - 20,
         20,
         rl.DARKGRAY,
+      )
+
+      rl.DrawText(
+        strings.unsafe_string_to_cstring(raw_arr_filter),
+        (windown_dim.x / 2) - 190,
+        (windown_dim.y / 2) + 30,
+        20,
+        rl.BLACK,
       )
 
       if not_found_by_search {
