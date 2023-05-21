@@ -295,6 +295,7 @@ main_source :: proc() {
           keys_global,
           &hashmap_paths,
         )
+        not_found_by_search = false
       } else if keyfor == rl.KeyboardKey.SPACE {
 
         swap_str_arr = []string{word, " "}
@@ -358,8 +359,8 @@ main_source :: proc() {
 
         rl.DrawText(
           "not found",
-          (windown_dim.x / 2) - 20,
-          (windown_dim.y / 2) - 40,
+          (windown_dim.x / 2) - 30,
+          (windown_dim.y / 2) + 10,
           20,
           rl.RED,
         )
