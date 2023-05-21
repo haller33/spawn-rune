@@ -24,7 +24,7 @@ INTERFACE_RAYLIB :: true
 DEBUG_PATH :: false
 DEBUG_INTERFACE_WORD :: false
 
-DEBUG_FILTERING_SEARCH :: false // this is for main debug
+DEBUG_FILTERING_SEARCH :: true // this is for main debug
 
 DEBUG_READ_ERRORN :: false
 COUNT_TOTAL_PROGRAMS_PATH :: false
@@ -186,7 +186,7 @@ main_source :: proc() {
 
       jj := []string{hashmap[thing], thing}
 
-      joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
+      joined, err_e := strings.join(jj, "/", context.temp_allocator)
       fmt.println(joined)
 
       return joined
@@ -211,7 +211,7 @@ main_source :: proc() {
 
       jj := []string{hashmap[thing], thing}
 
-      joined, err_e := strings.join_safe(jj, "/", context.temp_allocator)
+      joined, err_e := strings.join(jj, "/", context.temp_allocator)
       when DEBUG_FILTERING_SEARCH {fmt.println(joined)}
       return joined
     } else {
@@ -231,9 +231,6 @@ main_source :: proc() {
     // fmt.println(keyfor)
 
     rl.BeginDrawing()
-
-    current_speed: f32 = 6.0
-    old_current_speed: f32 = current_speed
 
     pause: bool = false
 
