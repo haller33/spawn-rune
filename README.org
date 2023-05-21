@@ -11,13 +11,14 @@ Spawn programs with a search on PATH and custom directories, also .desktop files
 
 ** demos
 
-[[assets/notfound_example.png]]
-
 
 [[assets/preview_emacs.png]]
 
 
 [[assets/preview_simple.png]]
+
+
+[[assets/notfound_example.png]]
 
 
 ** motivation
