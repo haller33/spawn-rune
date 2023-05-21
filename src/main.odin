@@ -23,7 +23,9 @@ TEST_MODE :: false
 INTERFACE_RAYLIB :: true
 DEBUG_PATH :: false
 DEBUG_INTERFACE_WORD :: false
-DEBUG_FILTERING_SEARCH :: true
+
+DEBUG_FILTERING_SEARCH :: false // this is for main debug
+
 DEBUG_READ_ERRORN :: false
 COUNT_TOTAL_PROGRAMS_PATH :: false
 TEST_STATEMENT :: false
@@ -193,7 +195,10 @@ main_source :: proc() {
       /// there is no much files
       /// so because on 76% of time of search, this feels more rapid
       /// need to be check
-      if lenof < 15 {
+      /// acord with this, is 9 the ideal
+      /// https://stackoverflow.com/questions/46786327/why-bubble-sort-is-faster-than-quick-sort
+      ///
+      if lenof < 10 {
         // the majority of time is sloww on large sets
         sort.bubble_sort(filtered)
 
