@@ -3,10 +3,7 @@
 
 Spawn programs with a search on PATH and custom directories, also .desktop files, configure with LUA
 
-
-[[https://github.com/haller33/spawn-rune/raw/master/assets/video_example.webm]]
-
-[[../demo/assets/demonstration.gif?raw=true]]
+[[../demo/assets/demonstration_one.gif?raw=true]]
 
 
 ** demos
