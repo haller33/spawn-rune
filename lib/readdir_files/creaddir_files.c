@@ -147,7 +147,7 @@ int creaddir_files(char *name_dir, char ***files_arr_ret,
 }
 
 int creaddir_files_linear(char *name_dir, char **files_arr_ret,
-                   int32_t *size_of_dir_t) {
+                   int32_t *size_of_dir_t_ret) {
 
   DIR *folder;
   struct dirent *entry;
@@ -197,7 +197,7 @@ int creaddir_files_linear(char *name_dir, char **files_arr_ret,
   }
 
   *files_arr_ret = files_arr;
-  *size_of_dir_t = files_count;
+  *size_of_dir_t_ret = files_count;
 
   closedir(folder);
 

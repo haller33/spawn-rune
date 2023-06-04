@@ -90,7 +90,8 @@ main_source :: proc() {
     context.temp_allocator,
   ) {
 
-    files_arr_ret: ^^c.char
+    // files_arr_ret: ^^c.char
+    files_arr_ret: ^c.char
 
     now_string = strings.trim(name, ":")
     now_string = strings.trim(now_string, " ")
@@ -100,7 +101,7 @@ main_source :: proc() {
       cstr_name =
       cast(^c.char)strings.clone_to_cstring(now_string, context.temp_allocator)
 
-      readdir.creaddir_files(cstr_name, &files_arr_ret, &count_files)
+      readdir.creaddir_files_linear(cstr_name, &files_arr_ret, &count_files)
 
       when DEBUG_PATH {
         fmt.println(" :: ", now_string)
@@ -109,16 +110,23 @@ main_source :: proc() {
 
       for i: i32 = 0; i < count_files; i += 1 {
 
-        fist_offset := cast(^cstring)mem.ptr_offset(files_arr_ret, i)
-
-        c_string_now: cstring = cast(cstring)fist_offset^
+        fist_offset := cast(^c.char)mem.ptr_offset(
+          files_arr_ret,
+          i * readdir.MAX_CREADDIR_FILE_NAME,
+        )
 
         /// try to convert from cstring to string copy it
         // str_now := runtime.cstring_to_string(c_string_now)
         // runtime.copy_from_string(str_now, copy_str_now )
+        //
+        // this do not make more sense, since the usage is with a offset
+        // of the MAX_CREADDIR_FILE_NAME of the file name, so the name is
+        // not more a string, but a offset single flatted array
+        //
+        // fist_offset := cast(^cstring)mem.ptr_offset(files_arr_ret, i)
 
         copy_str_now := strings.clone_from_cstring(
-          c_string_now,
+          cast(cstring)fist_offset,
           context.temp_allocator,
         )
 
@@ -131,7 +139,7 @@ main_source :: proc() {
         hashmap_paths[copy_str_now] = now_string
       }
 
-      readdir.free_read_dir(files_arr_ret, count_files)
+      readdir.free_read_dir_linear(files_arr_ret, count_files)
 
       when COUNT_TOTAL_PROGRAMS_PATH {
         total += count_files
@@ -242,7 +250,9 @@ main_source :: proc() {
 
     pause: bool = false
 
-    fmt.println("counter :: ", counter)
+    when TEST_MODE {
+      fmt.println("counter :: ", counter)
+    }
 
     runner_simbol: string = ""
 
